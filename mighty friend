@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int cmp_desc(const void *a, const void *b) {
+    int x = *(const int *)a;
+    int y = *(const int *)b;
+    return (y - x); // descending
+}
+
+int cmp_asc(const void *a, const void *b) {
+    int x = *(const int *)a;
+    int y = *(const int *)b;
+    return (x - y); // ascending
+}
+
+int main() {
+    int T;
+    scanf("%d", &T);
+    while (T--) {
+        int N, K;
+        scanf("%d %d", &N, &K);
+        int A[10005];
+        for (int i = 0; i < N; i++) scanf("%d", &A[i]);
+
+        // split into Motu (even indices) and Tomu (odd indices)
+        int motu[10005], tomu[10005];
+        int msz = 0, tsz = 0;
+        for (int i = 0; i < N; i++) {
+            if (i % 2 == 0) motu[msz++] = A[i];
+            else tomu[tsz++] = A[i];
+        }
+
+        // sort Motu desc, Tomu asc
+        qsort(motu, msz, sizeof(int), cmp_desc);
+        qsort(tomu, tsz, sizeof(int), cmp_asc);
+
+        // perform up to K beneficial swaps
+        int swaps = (K < msz && K < tsz) ? K : (msz < tsz ? msz : tsz);
+        for (int i = 0; i < swaps; i++) {
+            if (motu[i] > tomu[i]) {
+                int tmp = motu[i];
+                motu[i] = tomu[i];
+                tomu[i] = tmp;
+            } else {
+                break;
+            }
+        }
+
+        long long motu_sum = 0, tomu_sum = 0;
+        for (int i = 0; i < msz; i++) motu_sum += motu[i];
+        for (int i = 0; i < tsz; i++) tomu_sum += tomu[i];
+
+        if (tomu_sum > motu_sum) printf("YES\n");
+        else printf("NO\n");
+    }
+    return 0;
+}
